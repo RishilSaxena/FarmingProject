@@ -3,6 +3,7 @@ const app = express();
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser")
 const fs = require("fs")
+const path = require("path")
 
 
 const multer = require('multer');
@@ -22,6 +23,7 @@ const PORT = process.env.PORT || 3001;
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.static(path.resolve(__dirname, "./client/build")));
 mongoose.connect("mongodb+srv://farmer:farmingapp@cluster0.hkuzp.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
 
 require("./routes/apiroutes")(app)
