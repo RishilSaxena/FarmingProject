@@ -2,12 +2,14 @@ const aws = require("aws-sdk");
 const crypto = require('crypto');
 const util = require("util")
 const randomBytes = util.promisify(crypto.randomBytes)
+const dotenv = require("dotenv");
+dotenv.config();
 
 
 const region = "us-east-1"
 const bucketName = "foodtotabledev"
-const accessKeyId = "AKIASNJCCJQFTZUA6CHC"
-const secretAccessKey = "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"
+const accessKeyId = process.env.S3ACCESSKEY
+const secretAccessKey = process.env.S3SECRETKEY
 
 const s3 = new aws.S3({
   region,
