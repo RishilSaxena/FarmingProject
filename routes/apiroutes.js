@@ -59,4 +59,7 @@ module.exports = function (app) {
   app.post("/api/updateQuantity", function (req, res) {
     apiControllers.updateQuantity(req, res);
   });
+  app.post("/api/deleteItem", function (req, res) {
+    apiControllers.deleteItem(req, res);
+  });
 };

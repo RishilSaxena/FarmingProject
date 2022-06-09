@@ -12,10 +12,16 @@ const CartItem = ({ e }) => {
     setCount(quantity)
     await axios.post("/api/updateQuantity", {quantity: quantity, food: item.food, sellerId: item.sellerId})
   }
+  const deleteItem = async () => {
+    console.log("deleting")
+    await axios.post("/api/deleteItem", {food: item.food, sellerId: item.sellerId})
+    document.location.reload();
+  }
+
   return (
     // <div className="inline text-center w-full align-center justify-center ">
     <div className="container w-3/4 p-4 border-2 text-left m-auto rounded-md my-3 shadow-md relative">
-      <img src={e.foodImage} className="rounded-full w-20 mr-10 inline" />
+      <img src={e.foodImage} className="rounded-full w-20 h-16 mr-10 inline" />
 
       <span className="font-bold text-lg align-middle mr-10">{e.food}</span>
 
@@ -73,6 +79,7 @@ const CartItem = ({ e }) => {
         stroke="currentColor"
         strokeWidth={2}
         style={{top: (99/2)-12}}
+        onClick={deleteItem}
       >
         <path
           strokeLinecap="round"

@@ -3,7 +3,7 @@ const User = require("../models/UserModel");
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
-const zipcodes = require("zipcodes-nearby")
+const zipcodes = require("zipcodes-nearby");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -35,7 +35,7 @@ module.exports = {
       zipcode: req.body.zipcode,
       city: req.body.city,
       state: req.body.state,
-      cart:[]
+      cart: [],
     }).then(function (data) {
       res.json(data);
     });
@@ -128,8 +128,8 @@ module.exports = {
         data.forEach((e) => {
           e.sellerData.foods.forEach((food) => {
             const product = food;
-            console.log(product)
-            product.zipcode = e.zipcode
+            console.log(product);
+            product.zipcode = e.zipcode;
             products.push(food);
           });
         });
@@ -141,56 +141,81 @@ module.exports = {
   },
   findZipcodesNearby: async function (req, res) {
     try {
-      console.log(req.params.zipcode)
+      console.log(req.params.zipcode);
       const zipcode = await zipcodes.near(req.params.zipcode, 10000);
-      console.log(zipcode)
+      console.log(zipcode);
       res.json(zipcode);
     } catch (err) {
       console.log(err);
-      res.json([""])
+      res.json([""]);
     }
   },
   getCookie: async function (req, res) {
-    res.json(req.cookies["id"])
+    res.json(req.cookies["id"]);
   },
-  addToCart: function (req, res){
+  addToCart: function (req, res) {
     let updated = false;
-    User.findOne({_id: req.cookies["id"]}).then(function(data){
+    User.findOne({ _id: req.cookies["id"] }).then(function (data) {
       const cart = data.cart;
-      cart.forEach(food => {
-        if(food.food == req.body.food && food.sellerId == req.body.sellerId){
-          console.log("Already exists")
-          food.quantity += req.body.quantity
-          res.end()
-          updated = true
+      cart.forEach((food) => {
+        if (food.food == req.body.food && food.sellerId == req.body.sellerId) {
+          console.log("Already exists");
+          updated = true;
+          food.quantity += req.body.quantity;
+          User.findOneAndUpdate({ _id: req.cookies["id"] }, { cart: cart }).then(
+            function (data) {
+              
+              res.end();
+            }
+          );  
         }
-      })
-      updated ? User.findOneAndUpdate({_id: req.cookies["id"]}, {$push: {cart: req.body}}, {new: true}).then(function(data){
-        res.end()
-      }) : ""
-    })
-
-    
+      });
+      if (!updated) {
+        User.findOneAndUpdate(
+          { _id: req.cookies["id"] },
+          { $push: { cart: req.body } },
+          { new: true }
+        ).then(function (data) {
+          res.end();
+        });
+      }
+    });
   },
-  getCart: function (req, res){
-    User.findOne({_id: req.cookies["id"]}).then(function(data){
-      console.log(data)
-      res.json(data.cart)
-    })
+  getCart: function (req, res) {
+    User.findOne({ _id: req.cookies["id"] }).then(function (data) {
+      console.log(data);
+      res.json(data.cart);
+    });
   },
-  updateQuantity: function(req, res){
-    console.log(req.food)
-    User.findOne({_id: req.cookies["id"]}).then(function(data){
+  updateQuantity: function (req, res) {
+    console.log(req.food);
+    User.findOne({ _id: req.cookies["id"] }).then(function (data) {
       const cart = data.cart;
-      cart.forEach(food => {
-        if(food.food == req.body.food && food.sellerId == req.body.sellerId){
-          food.quantity = req.body.quantity
+      cart.forEach((food) => {
+        if (food.food == req.body.food && food.sellerId == req.body.sellerId) {
+          food.quantity = req.body.quantity;
         }
-      })
-      User.findOneAndUpdate({_id: req.cookies["id"]}, {cart: cart}).then(function(data){
-        res.end();
-      })
-    })
-  
+      });
+      User.findOneAndUpdate({ _id: req.cookies["id"] }, { cart: cart }).then(
+        function (data) {
+          res.end();
+        }
+      );
+    });
+  },
+  deleteItem: function(req, res){
+    User.findOne({ _id: req.cookies["id"] }).then(function (data) {
+      const cart = data.cart;
+      cart.forEach((food, index) => {
+        if (food.food == req.body.food && food.sellerId == req.body.sellerId) {
+          cart.splice(index, 1);
+        }
+      });
+      User.findOneAndUpdate({ _id: req.cookies["id"] }, { cart: cart }).then(
+        function (data) {
+          res.end();
+        }
+      );
+    });
   }
 };
