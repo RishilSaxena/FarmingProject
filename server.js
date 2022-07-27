@@ -4,6 +4,11 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser")
 const fs = require("fs")
 const path = require("path")
+const sgMail = require('@sendgrid/mail')
+const dotenv = require("dotenv");
+dotenv.config();
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 
 // const multer = require('multer');
@@ -19,8 +24,6 @@ const path = require("path")
   
 // const upload = multer({ storage: storage });
 
-const dotenv = require("dotenv");
-dotenv.config();
 
 const PORT = process.env.PORT || 3001;
 app.use(express.urlencoded({ extended: false }));

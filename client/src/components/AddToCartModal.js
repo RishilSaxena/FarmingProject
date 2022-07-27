@@ -26,24 +26,25 @@ const AddToCartModal = ({ productInformation, toggleAddingToCart }) => {
     setImageHeight(document.getElementById("image").clientHeight);
   });
   const addToCart = async () => {
-    const product = {...productInformation, quantity: count}
-    await axios.post("/api/addToCart", product)
-    closeModal()
+    const product = { ...productInformation, quantity: count };
+    await axios.post("/api/addToCart", product);
+    closeModal();
   };
   const changeInput = (e) => {
-    setCount(e.target.value)
-  }
+    setCount(e.target.value);
+  };
+
   return (
     <div classsName="container">
       <div
-        className="fixed bg-white p-6 rounded shadow-2xl grid grid-cols-2"
+        className="fixed bg-white p-6 rounded shadow-2xl grid grid-cols-2 transition-all duration-500 ease-in-out"
         id="addToCart"
         style={{
           width: modalWidth,
           height: modalWidth / 2,
           left: (fullWidth - modalWidth) / 2,
           top: (fullHeight - modalWidth / 2) / 2,
-        }}
+        }}  
       >
         <div className="flex align-center justify-center">
           <div className="w-2/3 m-auto">
@@ -57,6 +58,11 @@ const AddToCartModal = ({ productInformation, toggleAddingToCart }) => {
         </div>
         <div className="text-center">
           <h1 className="text-2xl font-bold">Buy {productInformation.food}</h1>
+          {productInformation.sellMethod == "weight" ? (
+          <h1 className="text-xl font-bold mt-6">${productInformation.price} per pound</h1>
+        ) : (
+          <h1 className="text-xl font-bold mt-6">${productInformation.price} each</h1>
+        )}
           <div className="counter flex text-center w-full align-center justify-center mt-10">
             <button
               className="bg-white p-2 rounded-l-full text-center border-2"
@@ -77,7 +83,11 @@ const AddToCartModal = ({ productInformation, toggleAddingToCart }) => {
                 />
               </svg>
             </button>
-            <input className="w-1/3 p-2 text-center border-2" value={count} onChange={changeInput}/>
+            <input
+              className="w-1/3 p-2 text-center border-2"
+              value={count}
+              onChange={changeInput}
+            />
             <button
               className="bg-white p-2 rounded-r-full text-center border-2"
               onClick={() => setCount(count + 1)}

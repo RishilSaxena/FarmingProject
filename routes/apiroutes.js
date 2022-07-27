@@ -62,4 +62,10 @@ module.exports = function (app) {
   app.post("/api/deleteItem", function (req, res) {
     apiControllers.deleteItem(req, res);
   });
+  app.post("/api/submitReview/:id", function (req, res) {
+    apiControllers.submitReview(req, res);
+  });
+  app.post("/api/sendResetEmail", function (req, res) {
+    apiControllers.sendResetEmail(req, res);
+  })
 };

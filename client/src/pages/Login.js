@@ -43,20 +43,24 @@ const Login = ({toggleLoading}) => {
         )}
 
         <p className="error font-medium text-red-500">
-          {errors.username ? "Invalid username." : ""}
+          {errors.email ? "Invalid email." : ""}
         </p>
 
         <input
           type="text"
-          name="username"
-          autoComplete="username"
+          name="email"
+          autoComplete="email"
           className={`w-2/3 border-2 border-gray-300 rounded-md p-2 outline-none mt-1 block m-auto ${
-            errors.username
+            errors.email
               ? `ring-2 ring-red-500 border-none outline-none bg-red-300 animate-shake mb-6`
               : `focus:ring-2 focus:ring-blue-700 focus:border-none focus:outline-none mb-10`
           }`}
-          placeholder="Username..."
-          {...register("username", { required: true, minLength: 3 })}
+          placeholder="Email..."
+          {...register("email", {
+            required: true,
+            pattern:
+              /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/g,
+          })}
         />
 
         <p className="error font-medium text-red-500">
@@ -68,12 +72,14 @@ const Login = ({toggleLoading}) => {
           name="password"
           className={`w-2/3 border-2 border-gray-300 rounded-md p-2 outline-none mt-1 block m-auto ${
             errors.password
-              ? `ring-2 ring-red-500 border-none outline-none bg-red-300 animate-shake mb-6`
-              : `focus:ring-2 focus:ring-blue-700 focus:border-none focus:outline-none mb-10`
+              ? `ring-2 ring-red-500 border-none outline-none bg-red-300 animate-shake mb-1`
+              : `focus:ring-2 focus:ring-blue-700 focus:border-none focus:outline-none mb-5`
           }`}
           placeholder="Password..."
           {...register("password", { required: true, minLength: 8 })}
         />
+        <p className="text-center mb-2 text-md font-medium">Don't have an account? <a href="/register" className="no-underline text-blue-500 font-semibold">Register now</a></p>
+        <p className="text-center mb-6 text-md font-medium">Forgot password? <a href="/resetPassword" className="no-underline text-blue-500 font-semibold">Reset</a></p>
 
         <button
           type="submit"

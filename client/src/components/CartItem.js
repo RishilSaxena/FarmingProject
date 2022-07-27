@@ -11,6 +11,7 @@ const CartItem = ({ e }) => {
   const changeQuantity = async (quantity) => {
     setCount(quantity)
     await axios.post("/api/updateQuantity", {quantity: quantity, food: item.food, sellerId: item.sellerId})
+    document.location.reload()
   }
   const deleteItem = async () => {
     console.log("deleting")
@@ -20,7 +21,7 @@ const CartItem = ({ e }) => {
 
   return (
     // <div className="inline text-center w-full align-center justify-center ">
-    <div className="container w-3/4 p-4 border-2 text-left m-auto rounded-md my-3 shadow-md relative">
+    <div className="container w-3/4 p-4 border-2 text-left m-auto rounded-md my-3 shadow-md relative bg-white">
       <img src={e.foodImage} className="rounded-full w-20 h-16 mr-10 inline" />
 
       <span className="font-bold text-lg align-middle mr-10">{e.food}</span>
@@ -70,6 +71,11 @@ const CartItem = ({ e }) => {
           />
         </svg>
       </button>
+      {e.sellMethod == "weight" ? (
+          <span className="font-bold text-md mb-2 cursor-default ml-8">${e.price} per pound</span>
+        ) : (
+          <span className="font-bold text-md mb-2 cursor-default ml-8">${e.price} each</span>
+        )}
  
       <svg
         xmlns="http://www.w3.org/2000/svg"

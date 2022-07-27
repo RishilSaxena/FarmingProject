@@ -1,11 +1,20 @@
 import axios from "axios";
-import React, { useReducer } from "react";
+import React, { useReducer, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 const Navbar = () => {
   const navigate = useNavigate();
+  useEffect(async () => {
+
+    const id = await axios.get("/api/getCookie")
+    setSellerId(id.data)
+    
+    
+  }, []);
+  const [sellerId, setSellerId] = useState("")
+    
   const logout = async () => {
     await axios.get("/api/logout");
     navigate("/");
@@ -15,7 +24,7 @@ const Navbar = () => {
   }
 
   return (
-    <div className="w-full bg-green-500 align-middle relative inline-block">
+    <div className="w-full bg-green-500 align-middle relative inline-block shadow-md">
       <Link
         to="/"
         className="inline-block text-white font-medium p-5 text-xl hover:text-gray-300 transition-all"
@@ -108,6 +117,23 @@ const Navbar = () => {
                       )}
                     >
                       Update Seller Data
+                    </a>
+                  )}
+                </Menu.Item>
+              ) : (
+                ""
+              )}
+              {document.cookie ? (
+                <Menu.Item>
+                  {({ active }) => (
+                    <a
+                      href={"/seller/" + sellerId} 
+                      className={classNames(
+                        active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                        "block px-4 py-2 text-sm"
+                      )}
+                    >
+                      View Profile
                     </a>
                   )}
                 </Menu.Item>

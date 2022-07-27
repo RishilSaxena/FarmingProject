@@ -2,11 +2,6 @@ const { kStringMaxLength } = require("buffer");
 const mongoose = require("mongoose");
 
 const UserSchema = mongoose.Schema({
-    username:{
-        type:String,
-        trim:true,
-        required:[true, "Username not entered."]
-    },
     email:{
         type:String,
         trim:true,

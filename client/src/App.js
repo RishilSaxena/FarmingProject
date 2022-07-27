@@ -15,6 +15,7 @@ import Carousel, {CarouselItem} from "./components/Carousel";
 import LoadingModal from "./components/LoadingModal";
 import AddToCartModal from "./components/AddToCartModal";
 import Cart from "./pages/Cart"
+import ResetPassword from "./pages/ResetPassword";
 
 
 function App() {
@@ -31,7 +32,7 @@ function App() {
   
   
   return(
-    <>
+    <div className="App">
 
     <Router>
       <Navbar/>
@@ -46,13 +47,14 @@ function App() {
         <Route path="/updateSellerData" element={<UpdateSellerData toggleLoading={toggleLoading}/>}/>
         <Route path="/seller/:id" element={<SellerPage toggleLoading={toggleLoading} setProductInformation={setProductInformation} toggleAddingToCart={toggleAddingToCart}/>}/>
         <Route path="/cart" element={<Cart toggleLoading={toggleLoading}/>}/>
+        <Route path = "/resetPassword" element={<ResetPassword toggleLoading={toggleLoading}/>}/>
       </Switch>
       </div>
       {loading ? <LoadingModal/> : ""}
       {addingToCart ? <AddToCartModal productInformation={productInformation} toggleAddingToCart={toggleAddingToCart}/> : ""}
       
     </Router>
-    </>
+    </div>
     /*
     
     */

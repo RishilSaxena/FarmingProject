@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
 const zipcodes = require("zipcodes-nearby");
+const nodemailer = require("nodemailer");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -14,6 +15,9 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage: storage });
+const sgMail = require("@sendgrid/mail");
+const dotenv = require("dotenv");
+dotenv.config();
 
 module.exports = {
   register: async function (req, res) {
@@ -26,7 +30,6 @@ module.exports = {
     }
 
     User.create({
-      username: req.body.username,
       email: req.body.email,
       password: password,
       streetAddress: req.body.streetAddress,
@@ -43,7 +46,7 @@ module.exports = {
   login: function (req, res) {
     let passwordsMatch = false;
     try {
-      User.find({ username: req.body.username }).then(async function (data) {
+      User.find({ email: req.body.email }).then(async function (data) {
         for (let i = 0; i < data.length; i++) {
           passwordsMatch = await bcrypt.compare(
             req.body.password,
@@ -87,6 +90,7 @@ module.exports = {
         image1: req.body.image1,
         image2: req.body.image2,
         image3: req.body.image3,
+        reviews: [],
       };
       User.findOneAndUpdate(
         { _id: req.cookies["id"] },
@@ -162,12 +166,12 @@ module.exports = {
           console.log("Already exists");
           updated = true;
           food.quantity += req.body.quantity;
-          User.findOneAndUpdate({ _id: req.cookies["id"] }, { cart: cart }).then(
-            function (data) {
-              
-              res.end();
-            }
-          );  
+          User.findOneAndUpdate(
+            { _id: req.cookies["id"] },
+            { cart: cart }
+          ).then(function (data) {
+            res.end();
+          });
         }
       });
       if (!updated) {
@@ -203,7 +207,7 @@ module.exports = {
       );
     });
   },
-  deleteItem: function(req, res){
+  deleteItem: function (req, res) {
     User.findOne({ _id: req.cookies["id"] }).then(function (data) {
       const cart = data.cart;
       cart.forEach((food, index) => {
@@ -217,5 +221,124 @@ module.exports = {
         }
       );
     });
-  }
+  },
+  submitReview: function (req, res) {
+    User.findOne({ _id: req.params["id"], isSeller: true }).then(function (
+      data
+    ) {
+      console.log(data);
+      const sellerData = data.sellerData;
+      sellerData.reviews.push(req.body);
+      User.findOneAndUpdate(
+        { _id: req.params["id"], isSeller: true },
+        { sellerData: sellerData }
+      ).then(function (data) {
+        res.end();
+      });
+    });
+  },
+  sendResetEmail: function (req, res) {
+    User.findOne({ email: req.body.email }).then(function (data) {
+      if (data) {
+        var transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: "rishilnandysaxena@gmail.com",
+            pass: "SirOinkdaM0opyf@ce",
+          },
+        });
+
+        var mailOptions = {
+          from: "rishilnandysaxena@gmail.com",
+          to: req.body.email,
+          subject: "Reset Password",
+          html: `<div
+          style="
+            background-color: white;
+            width: 75%;
+            border-radius: 4px;
+            margin: auto;
+            padding: 4px;
+            border: 2px black solid;
+            text-align: center;
+            margin-top: 10px;
+            font-family: Arial, Helvetica, sans-serif;
+          "
+        >
+          <div style="position: relative; width: 100%; text-align: left">
+            <img
+              style="width: 20%"
+              src="https://cdn.dribbble.com/users/3951046/screenshots/9890244/media/9046e934c52d330a40c436b576cb4fda.jpg?compress=1&resize=400x300&vertical=top"
+            />
+            <span
+              style="
+                font-size: x-large;
+                font-weight: bold;
+                color: #10b981;
+                position: absolute;
+                top: 50%;
+                bottom: 50%;
+              "
+              >Farm To Table</span
+            >
+          </div>
+          <h1 style="text-align: center; font-weight: bolder; font-size: xx-large">
+            Reset Password
+          </h1>
+          <p style="text-align: center; font-weight: 500; font-size: large">
+            Click the button below to reset your password. If you didn't request this,
+            please disregard this email.
+          </p>
+          <a
+            style="
+              display: block;
+              width: 20%;
+              margin: auto;
+              background-color: #10b981;
+              margin-top: 8px;
+              border-radius: 6px;
+              font-weight: 500;
+              font-size: large;
+              border: none;
+              color: white;
+              padding: 10px;
+              cursor: pointer;
+              text-decoration: none;
+            "
+            href="google.com"
+          >
+            Reset
+          </a>
+        </div>
+        `,
+        };
+
+        transporter.sendMail(mailOptions, function (error, info) {
+          if (error) {
+            console.log(error);
+          } else {
+            console.log("Email sent: " + info.response);
+          }
+        });
+      }
+    });
+  },
 };
+// sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+//         const msg = {
+//           to: req.body.email, // Change to your recipient
+//           from: "rishilnandysaxena@gmail.com", // Change to your verified sender
+//           subject: "Reset Password",
+//           html: `
+//         `,
+//         };
+
+//         sgMail
+//           .send(msg)
+//           .then(() => {
+//             console.log("Email sent");
+//             res.end()
+//           })
+//           .catch((error) => {
+//             console.error(error);
+//           });

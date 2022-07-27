@@ -36,7 +36,7 @@ const Register = ({toggleLoading}) => {
         onSubmit={handleSubmit(onSubmit)}
       >
         <h1 className="text-2xl font-bold mb-10 text-center">Registration</h1>
-        <p className="error font-medium text-red-500">
+        {/* <p className="error font-medium text-red-500">
           {errors.username ? "Invalid username." : ""}
         </p>
 
@@ -51,7 +51,7 @@ const Register = ({toggleLoading}) => {
           }`}
           placeholder="Username..."
           {...register("username", { required: true, minLength: 3 })}
-        />
+        /> */}
         <p className="error font-medium text-red-500">
           {errors.email ? "Invalid email." : ""}
         </p>
@@ -190,7 +190,7 @@ const Register = ({toggleLoading}) => {
         </div>
         <button
           type="submit"
-          className="bg-green-500 rounded-md text-white font-medium p-4 block m-auto mt-4 sm:w-1/3 lg:w-1/4"
+          className="bg-green-500 rounded-md text-white font-bold p-4 block m-auto mt-4 sm:w-1/3 lg:w-1/4"
         >
           Continue
         </button>
