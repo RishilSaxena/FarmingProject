@@ -18,7 +18,7 @@ const Card = ({ e, toggleAddingToCart, setProductInformation }) => {
       id="card"
     >
       <div className="face face-front block absolute top-0 left-0 w-full h-full rounded-md bg-white shadow-md p-4">
-        <img className="rounded-full w-20 m-auto mb-2" src={e.foodImage} />
+        <img className="rounded-full w-20 h-16  m-auto mb-2" src={e.foodImage} />
         <h1 className="font-bold text-lg cursor-default">{e.food}</h1>
         {e.sellMethod == "weight" ? (
           <p className="font-medium text-md mb-2 cursor-default">${e.price} per pound</p>

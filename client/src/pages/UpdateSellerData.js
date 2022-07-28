@@ -24,9 +24,78 @@ const UpdateSellerData = ({ toggleLoading }) => {
     setSellerId(id.data);
     axios.get("/api/getSellerData/" + id.data).then(function (data) {
       setFinished(true);
+      foods.forEach((food) => {
+        const option = document.createElement("option");
+        option.setAttribute("value", food);
+        option.innerText = food;
+        document.getElementById("foodDropdown").append(option);
+      });
+      if (data.data.foods) {
+        for (let i = 1; i < data.data.foods.length; i++) {
+          const foodDiv = document.getElementById("foods");
+          const input = document.getElementById("foodDropdown");
+          const input2 = input.cloneNode(true);
+          const priceInput = document
+            .getElementById("foodPrice")
+            .cloneNode(true);
+          const typeOfPrice = document
+            .getElementById("typeOfPrice")
+            .cloneNode(true);
+          const foodImage = document
+            .getElementById("foodImageDiv")
+            .cloneNode(true);
+          const foodImagePreview = document
+            .getElementById("foodImagePreview")
+            .cloneNode(true);
+          const foodImageError = document
+            .getElementById("foodImageErrorContainer")
+            .cloneNode(true);
+          console.log(foodImageError);
+          input2.setAttribute("id", "food" + (i + 1));
+          priceInput.setAttribute("id", "foodPrice" + (i + 1));
+          typeOfPrice.setAttribute("id", "typeOfPrice" + (i + 1));
+          foodImage.setAttribute("id", "foodImageDiv" + (i + 1));
+          foodImage.childNodes[0].setAttribute("id", "foodImage" + (i + 1));
+          // console.log(foodImage.childNodes[0].value)
+          // foodImage.childNodes[0].value = null
+          // console.log(foodImage.childNodes[0].value)
+          foodImage.childNodes[1].setAttribute(
+            "id",
+            "foodImage" + (i + 1) + "Text"
+          );
+          foodImagePreview.setAttribute(
+            "id",
+            "foodImage" + (i + 1) + "Preview"
+          );
+
+          foodImageError.setAttribute(
+            "id",
+            "foodImage" + (i + 1) + "ErrorContainer"
+          );
+          foodImageError.childNodes[1].setAttribute(
+            "id",
+            "foodImage" + (i + 1) + "Error"
+          );
+          priceInput.value = "";
+          foodDiv.appendChild(input2);
+          foodDiv.appendChild(typeOfPrice);
+          foodDiv.appendChild(priceInput);
+          foodDiv.appendChild(foodImageError);
+          foodDiv.appendChild(foodImage);
+          foodDiv.appendChild(foodImagePreview);
+
+          document.getElementById("foodImage" + (i + 1)).onchange = checkImage;
+          document.getElementById("foodImage" + (i + 1)).value = null;
+          document.getElementById("foodImage" + (i + 1) + "Preview").src = "";
+          document.getElementById("foodImage" + (i + 1) + "Text").textContent =
+            "Drag & drop your file here or click";
+        }
+        setNumberOfFoods(data.data.foods.length);
+      }
+
+
       if (data.data.image1) {
         getImgURL(data.data.image1, (imgBlob) => {
-
           let fileName = "image1.png";
           let file = new File(
             [imgBlob],
@@ -40,12 +109,9 @@ const UpdateSellerData = ({ toggleLoading }) => {
 
           document.querySelector("#image1").files = container.files;
           document.getElementById("image1" + "Text").textContent =
-            fileName +
-            " - " +
-            formatBytes(file.size);
-          document.getElementById("image1" + "Preview").src = URL.createObjectURL(
-            document.getElementById("image1").files[0]
-          )
+            fileName + " - " + formatBytes(file.size);
+          document.getElementById("image1" + "Preview").src =
+            URL.createObjectURL(document.getElementById("image1").files[0]);
         });
         // const newpreloaded = preloaded;
         // newpreloaded["image1"] = data.data.image1;
@@ -53,7 +119,6 @@ const UpdateSellerData = ({ toggleLoading }) => {
       }
       if (data.data.image2) {
         getImgURL(data.data.image2, (imgBlob) => {
-
           let fileName = "image2.png";
           let file = new File(
             [imgBlob],
@@ -67,18 +132,13 @@ const UpdateSellerData = ({ toggleLoading }) => {
 
           document.querySelector("#image2").files = container.files;
           document.getElementById("image2" + "Text").textContent =
-            fileName +
-            " - " +
-            formatBytes(file.size);
-          document.getElementById("image2" + "Preview").src = URL.createObjectURL(
-            document.getElementById("image2").files[0]
-          )
+            fileName + " - " + formatBytes(file.size);
+          document.getElementById("image2" + "Preview").src =
+            URL.createObjectURL(document.getElementById("image2").files[0]);
         });
-
       }
       if (data.data.image3) {
         getImgURL(data.data.image3, (imgBlob) => {
-
           let fileName = "image3.png";
           let file = new File(
             [imgBlob],
@@ -92,14 +152,10 @@ const UpdateSellerData = ({ toggleLoading }) => {
 
           document.querySelector("#image3").files = container.files;
           document.getElementById("image3" + "Text").textContent =
-            fileName +
-            " - " +
-            formatBytes(file.size);
-          document.getElementById("image3" + "Preview").src = URL.createObjectURL(
-            document.getElementById("image3").files[0]
-          )
+            fileName + " - " + formatBytes(file.size);
+          document.getElementById("image3" + "Preview").src =
+            URL.createObjectURL(document.getElementById("image3").files[0]);
         });
-
       }
 
       console.log(data.data);
@@ -109,46 +165,73 @@ const UpdateSellerData = ({ toggleLoading }) => {
       if (data.data.bio) {
         document.getElementById("bio").value = data.data.bio;
       }
-      
 
-      foods.forEach((food) => {
-        const option = document.createElement("option");
-        option.setAttribute("value", food);
-        option.innerText = food;
-        document.getElementById("foodDropdown").append(option);
-      });
-
-      if(data.data.foods){
-        document.getElementById("foodDropdown").selectedIndex = foods.indexOf(data.data.foods[0].food) + 1;
-        if(data.data.foods[0].sellMethod == "weight"){
+      if (data.data.foods) {
+        document.getElementById("foodDropdown").selectedIndex =
+          foods.indexOf(data.data.foods[0].food) + 1;
+        if (data.data.foods[0].sellMethod == "weight") {
           document.getElementById("typeOfPrice").selectedIndex = 1;
-        } else{
+        } else {
           document.getElementById("typeOfPrice").selectedIndex = 2;
         }
         document.getElementById("foodPrice").value = data.data.foods[0].price;
-        console.log(data.data.foods[1].foodImage)
-        console.log(data.data.image3)
-        getImgURL("https://foodtotabledev.s3.amazonaws.com/27338735d9717dfd1db57d29f73ac1e1.png", (imgBlob) => {
-        let fileName = data.data.foods[0].food + ".png";
-        let file = new File(
-          [imgBlob],
-          fileName,
-          { type: "image/jpeg", lastModified: new Date().getTime() },
-          "utf-8"
-        );
-        console.log(file);
-        let container = new DataTransfer();
-        container.items.add(file);
+        getImgURL(data.data.foods[0].foodImage, (imgBlob) => {
+          let fileName = data.data.foods[0].food + ".png";
+          let file = new File(
+            [imgBlob],
+            fileName,
+            { type: "image/jpeg", lastModified: new Date().getTime() },
+            "utf-8"
+          );
+          console.log(file);
+          let container = new DataTransfer();
+          container.items.add(file);
 
-        document.getElementById("foodImage").files = container.files;
-        document.getElementById("foodImage" + "Text").textContent =
-          fileName +
-          " - " +
-          formatBytes(file.size);
-        document.getElementById("foodImage" + "Preview").src = URL.createObjectURL(
-          document.getElementById("foodImage").files[0]
-        )
-        })
+          document.getElementById("foodImage").files = container.files;
+          document.getElementById("foodImage" + "Text").textContent =
+            fileName + " - " + formatBytes(file.size);
+          document.getElementById("foodImage" + "Preview").src =
+            URL.createObjectURL(document.getElementById("foodImage").files[0]);
+        });
+
+        for (let i = 1; i < data.data.foods.length; i++) {
+          getImgURL(data.data.foods[i].foodImage, (imgBlob) => {
+            let fileName = data.data.foods[i].food + ".png";
+            let file = new File(
+              [imgBlob],
+              fileName,
+              { type: "image/jpeg", lastModified: new Date().getTime() },
+              "utf-8"
+            );
+
+            let container = new DataTransfer();
+            container.items.add(file);
+            console.log(i + 1);
+            document.getElementById("foodImage" + (i + 1)).files =
+              container.files;
+            document.getElementById(
+              "foodImage" + (i + 1) + "Text"
+            ).textContent = fileName + " - " + formatBytes(file.size);
+            document.getElementById("foodImage" + (i + 1) + "Preview").src =
+              URL.createObjectURL(
+                document.getElementById("foodImage" + (i + 1)).files[0]
+              );
+            console.log(document.getElementById("food" + (i + 1)));
+            document.getElementById("food" + (i + 1)).selectedIndex =
+              foods.indexOf(data.data.foods[i].food) + 1;
+            if (data.data.foods[i].sellMethod == "weight") {
+              document.getElementById(
+                "typeOfPrice" + (i + 1)
+              ).selectedIndex = 1;
+            } else {
+              document.getElementById(
+                "typeOfPrice" + (i + 1)
+              ).selectedIndex = 2;
+            }
+            document.getElementById("foodPrice" + +(i + 1)).value =
+              data.data.foods[i].price;
+          });
+        }
       }
     });
   }, []);
@@ -210,7 +293,10 @@ const UpdateSellerData = ({ toggleLoading }) => {
     let imageUrl1 = "";
     let imageUrl2 = "";
     let imageUrl3 = "";
-    if ( document.getElementById("image1") && document.getElementById("image1").files[0]) {
+    if (
+      document.getElementById("image1") &&
+      document.getElementById("image1").files[0]
+    ) {
       const data = await axios.get("/api/s3Url");
       await fetch(data.data, {
         method: "PUT",
@@ -223,27 +309,33 @@ const UpdateSellerData = ({ toggleLoading }) => {
       imageUrl1 = data.data.split("?")[0];
     }
 
-    if (document.getElementById("image2") && document.getElementById("image2").files[0]) {
+    if (
+      document.getElementById("image2") &&
+      document.getElementById("image2").files[0]
+    ) {
       const data = await axios.get("/api/s3Url");
       await fetch(data.data, {
         method: "PUT",
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        body: document.getElementById("image2").files[0]
+        body: document.getElementById("image2").files[0],
       });
 
       imageUrl2 = data.data.split("?")[0];
     }
 
-    if (document.getElementById("image3") && document.getElementById("image3").files[0]) {
+    if (
+      document.getElementById("image3") &&
+      document.getElementById("image3").files[0]
+    ) {
       const data = await axios.get("/api/s3Url");
       await fetch(data.data, {
         method: "PUT",
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        body: document.getElementById("image3").files[0]
+        body: document.getElementById("image3").files[0],
       });
 
       imageUrl3 = data.data.split("?")[0];
@@ -265,14 +357,18 @@ const UpdateSellerData = ({ toggleLoading }) => {
   };
 
   const addFood = () => {
+    console.log(numberOfFoods);
     setNumberOfFoods(numberOfFoods + 1);
+    console.log(numberOfFoods);
     const foodDiv = document.getElementById("foods");
     const input = document.getElementById("foodDropdown");
     const input2 = input.cloneNode(true);
     const priceInput = document.getElementById("foodPrice").cloneNode(true);
     const typeOfPrice = document.getElementById("typeOfPrice").cloneNode(true);
     const foodImage = document.getElementById("foodImageDiv").cloneNode(true);
-    const foodImagePreview = document.getElementById("foodImagePreview").cloneNode(true);
+    const foodImagePreview = document
+      .getElementById("foodImagePreview")
+      .cloneNode(true);
     const foodImageError = document
       .getElementById("foodImageErrorContainer")
       .cloneNode(true);
@@ -292,7 +388,10 @@ const UpdateSellerData = ({ toggleLoading }) => {
       "id",
       "foodImage" + (numberOfFoods + 1) + "Text"
     );
-    foodImagePreview.setAttribute("id", "foodImage" + (numberOfFoods + 1) + "Preview");
+    foodImagePreview.setAttribute(
+      "id",
+      "foodImage" + (numberOfFoods + 1) + "Preview"
+    );
 
     foodImageError.setAttribute(
       "id",
@@ -313,12 +412,12 @@ const UpdateSellerData = ({ toggleLoading }) => {
     document.getElementById("foodImage" + (numberOfFoods + 1)).onchange =
       checkImage;
     document.getElementById("foodImage" + (numberOfFoods + 1)).value = null;
-    document.getElementById("foodImage" + (numberOfFoods + 1) + "Preview").src = ""
+    document.getElementById("foodImage" + (numberOfFoods + 1) + "Preview").src =
+      "";
     document.getElementById(
       "foodImage" + (numberOfFoods + 1) + "Text"
     ).textContent = "Drag & drop your file here or click";
   };
-
 
   function formatBytes(bytes, decimals = 2) {
     if (bytes === 0) return "0 Bytes";
@@ -332,12 +431,12 @@ const UpdateSellerData = ({ toggleLoading }) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
   }
   const checkImage = (e) => {
-    console.log(e)
+    console.log(e);
     if (e.target) {
       if (!e.target.files[0]) {
-        document.getElementById(e.target.id + "Text").textContent = "Drag & drop your file here or click";
-        document.getElementById(e.target.id + "Preview").src = ""
-        
+        document.getElementById(e.target.id + "Text").textContent =
+          "Drag & drop your file here or click";
+        document.getElementById(e.target.id + "Preview").src = "";
       } else {
         if (e.target.files[0].size > 2000000) {
           document.getElementById(e.target.id + "Error").textContent =
@@ -347,9 +446,8 @@ const UpdateSellerData = ({ toggleLoading }) => {
             e.target.files[0].name +
             " - " +
             formatBytes(e.target.files[0].size);
-          document.getElementById(e.target.id + "Preview").src = URL.createObjectURL(
-            document.getElementById(e.target.id).files[0]
-          )
+          document.getElementById(e.target.id + "Preview").src =
+            URL.createObjectURL(document.getElementById(e.target.id).files[0]);
         }
       }
     }
@@ -435,18 +533,16 @@ const UpdateSellerData = ({ toggleLoading }) => {
             accept="image/*"
           />
 
-          <div className="text-center  w-full h-full text-slate-500 flex flex-col items-center justify-center space-y-2" id="image1Text">
+          <div
+            className="text-center  w-full h-full text-slate-500 flex flex-col items-center justify-center space-y-2"
+            id="image1Text"
+          >
             Drag & drop your file here or click
           </div>
         </div>
 
-
-          <img
-            className="w-1/2 m-auto mb-10"
-            id="image1Preview"
-            src=""
-          />
-          <p className="error font-medium text-sm w-2/3">
+        <img className="w-1/2 m-auto mb-10" id="image1Preview" src="" />
+        <p className="error font-medium text-sm w-2/3">
           Upload first image of your garden(optional) - must be smaller than 2
           MB
           <span
@@ -464,19 +560,17 @@ const UpdateSellerData = ({ toggleLoading }) => {
             accept="image/*"
           />
 
-          <div className="text-center  w-full h-full text-slate-500 flex flex-col items-center justify-center space-y-2" id="image2Text">
+          <div
+            className="text-center  w-full h-full text-slate-500 flex flex-col items-center justify-center space-y-2"
+            id="image2Text"
+          >
             Drag & drop your file here or click
           </div>
         </div>
 
+        <img className="w-1/2 m-auto mb-10" id="image2Preview" src="" />
 
-          <img
-            className="w-1/2 m-auto mb-10"
-            id="image2Preview"
-            src=""
-          />
-
-<p className="error font-medium text-sm w-2/3">
+        <p className="error font-medium text-sm w-2/3">
           Upload first image of your garden(optional) - must be smaller than 2
           MB
           <span
@@ -494,22 +588,15 @@ const UpdateSellerData = ({ toggleLoading }) => {
             accept="image/*"
           />
 
-          <div className="text-center  w-full h-full text-slate-500 flex flex-col items-center justify-center space-y-2" id="image3Text">
+          <div
+            className="text-center  w-full h-full text-slate-500 flex flex-col items-center justify-center space-y-2"
+            id="image3Text"
+          >
             Drag & drop your file here or click
           </div>
         </div>
 
-
-          <img
-            className="w-1/2 m-auto mb-10"
-            id="image3Preview"
-            src=""
-          />
-
-
-
-
-
+        <img className="w-1/2 m-auto mb-10" id="image3Preview" src="" />
 
         {/* <p className="error font-medium text-sm w-2/3">
           Upload third image of your garden(optional) - must be smaller than 2
@@ -605,13 +692,8 @@ const UpdateSellerData = ({ toggleLoading }) => {
                     formatBytes(watch("image1")[0].size)}
                 </span> */}
           </div>
-          
         </div>
-        <img
-            className="w-1/2 m-auto mb-10"
-            id="foodImagePreview"
-            src=""
-          />
+        <img className="w-1/2 m-auto mb-10" id="foodImagePreview" src="" />
         <div id="foods"></div>
 
         <a
