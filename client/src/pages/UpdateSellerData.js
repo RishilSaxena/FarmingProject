@@ -13,7 +13,7 @@ const UpdateSellerData = ({ toggleLoading }) => {
     xhr.onload = function () {
       callback(xhr.response);
     };
-    xhr.open("GET", url);
+    xhr.open("GET", url + (/\?/.test(url) ? "&" : "?") + new Date().getTime());
     xhr.responseType = "blob";
     xhr.send();
   }
@@ -92,7 +92,6 @@ const UpdateSellerData = ({ toggleLoading }) => {
         }
         setNumberOfFoods(data.data.foods.length);
       }
-
 
       if (data.data.image1) {
         getImgURL(data.data.image1, (imgBlob) => {
@@ -175,6 +174,7 @@ const UpdateSellerData = ({ toggleLoading }) => {
           document.getElementById("typeOfPrice").selectedIndex = 2;
         }
         document.getElementById("foodPrice").value = data.data.foods[0].price;
+        console.log(data.data.foods[0].foodImage);
         getImgURL(data.data.foods[0].foodImage, (imgBlob) => {
           let fileName = data.data.foods[0].food + ".png";
           let file = new File(
@@ -195,6 +195,7 @@ const UpdateSellerData = ({ toggleLoading }) => {
         });
 
         for (let i = 1; i < data.data.foods.length; i++) {
+          console.log(data.data.foods[i].foodImage);
           getImgURL(data.data.foods[i].foodImage, (imgBlob) => {
             let fileName = data.data.foods[i].food + ".png";
             let file = new File(
@@ -240,120 +241,129 @@ const UpdateSellerData = ({ toggleLoading }) => {
   const [sellerId, setSellerId] = useState("");
   const [preloaded, setPreloaded] = useState({});
   const [finished, setFinished] = useState(false);
+  const [errors, setErrors] = useState({});
+  // const {
+  //   register,
+  //   handleSubmit,
+  //   watch,
+  //   formState: { errors },
+  // } = useForm();
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm();
-
-  const onSubmit = async (res) => {
-    toggleLoading(true);
-    const data = await axios.get("/api/s3Url");
-    await fetch(data.data, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      body: document.getElementById("foodImage").files[0],
-    });
-
-    const foodImage = data.data.split("?")[0];
-    const foods = [
-      {
-        food: document.getElementById("foodDropdown").value,
-        sellMethod: document.getElementById("typeOfPrice").value,
-        price: document.getElementById("foodPrice").value,
-        foodImage: foodImage,
-        sellerId: sellerId,
-        gardenName: res.gardenName,
-      },
-    ];
-    for (let i = 2; i < numberOfFoods + 1; i++) {
+  const onSubmit = async (e) => {
+    e.preventDefault()
+    if (document.getElementById("gardenName").value <= 3) {
+      setErrors({ gardenName: true });
+    } else if (document.getElementById("bio").value <= 10) {
+      setErrors({ bio: true });
+    } else {
+      toggleLoading(true);
       const data = await axios.get("/api/s3Url");
       await fetch(data.data, {
         method: "PUT",
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        body: document.getElementById("foodImage" + i).files[0],
+        body: document.getElementById("foodImage").files[0],
       });
 
       const foodImage = data.data.split("?")[0];
-      foods.push({
-        food: document.getElementById("food" + i).value,
-        sellMethod: document.getElementById("typeOfPrice" + i).value,
-        price: document.getElementById("foodPrice" + i).value,
-        foodImage: foodImage,
-        sellerId: sellerId,
-        gardenName: res.gardenName,
-      });
-    }
-    let imageUrl1 = "";
-    let imageUrl2 = "";
-    let imageUrl3 = "";
-    if (
-      document.getElementById("image1") &&
-      document.getElementById("image1").files[0]
-    ) {
-      const data = await axios.get("/api/s3Url");
-      await fetch(data.data, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "multipart/form-data",
+      const foods = [
+        {
+          food: document.getElementById("foodDropdown").value,
+          sellMethod: document.getElementById("typeOfPrice").value,
+          price: document.getElementById("foodPrice").value,
+          foodImage: foodImage,
+          sellerId: sellerId,
+          gardenName: document.getElementById("gardenName").value,
+          stock: 0
         },
-        body: document.getElementById("image1").files[0],
-      });
+      ];
+      for (let i = 2; i < numberOfFoods + 1; i++) {
+        const data = await axios.get("/api/s3Url");
+        await fetch(data.data, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          body: document.getElementById("foodImage" + i).files[0],
+        });
 
-      imageUrl1 = data.data.split("?")[0];
+        const foodImage = data.data.split("?")[0];
+        foods.push({
+          food: document.getElementById("food" + i).value,
+          sellMethod: document.getElementById("typeOfPrice" + i).value,
+          price: document.getElementById("foodPrice" + i).value,
+          foodImage: foodImage,
+          sellerId: sellerId,
+          gardenName: document.getElementById("gardenName").value,
+          stock: 0
+        });
+      }
+      let imageUrl1 = "";
+      let imageUrl2 = "";
+      let imageUrl3 = "";
+      if (
+        document.getElementById("image1") &&
+        document.getElementById("image1").files[0]
+      ) {
+        const data = await axios.get("/api/s3Url");
+        await fetch(data.data, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          body: document.getElementById("image1").files[0],
+        });
+
+        imageUrl1 = data.data.split("?")[0];
+      }
+
+      if (
+        document.getElementById("image2") &&
+        document.getElementById("image2").files[0]
+      ) {
+        const data = await axios.get("/api/s3Url");
+        await fetch(data.data, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          body: document.getElementById("image2").files[0],
+        });
+
+        imageUrl2 = data.data.split("?")[0];
+      }
+
+      if (
+        document.getElementById("image3") &&
+        document.getElementById("image3").files[0]
+      ) {
+        const data = await axios.get("/api/s3Url");
+        await fetch(data.data, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          body: document.getElementById("image3").files[0],
+        });
+
+        imageUrl3 = data.data.split("?")[0];
+      }
+
+      axios
+        .post("/api/updateSellerData", {
+          foods: foods,
+          bio: document.getElementById("bio").value,
+          gardenName: document.getElementById("gardenName").value,
+          image1: imageUrl1,
+          image2: imageUrl2,
+          image3: imageUrl3,
+        })
+        .then(function (data) {
+          toggleLoading(false);
+          navigate("/seller/" + sellerId);
+        });
     }
-
-    if (
-      document.getElementById("image2") &&
-      document.getElementById("image2").files[0]
-    ) {
-      const data = await axios.get("/api/s3Url");
-      await fetch(data.data, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        body: document.getElementById("image2").files[0],
-      });
-
-      imageUrl2 = data.data.split("?")[0];
-    }
-
-    if (
-      document.getElementById("image3") &&
-      document.getElementById("image3").files[0]
-    ) {
-      const data = await axios.get("/api/s3Url");
-      await fetch(data.data, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        body: document.getElementById("image3").files[0],
-      });
-
-      imageUrl3 = data.data.split("?")[0];
-    }
-
-    axios
-      .post("/api/updateSellerData", {
-        foods: foods,
-        bio: res.bio,
-        gardenName: res.gardenName,
-        image1: imageUrl1,
-        image2: imageUrl2,
-        image3: imageUrl3,
-      })
-      .then(function (data) {
-        toggleLoading(false);
-        navigate("/seller/" + sellerId);
-      });
   };
 
   const addFood = () => {
@@ -452,19 +462,19 @@ const UpdateSellerData = ({ toggleLoading }) => {
       }
     }
   };
-  function changePreloaded(input) {
-    setFinished(false);
-    let newpreloaded = preloaded;
-    newpreloaded[input] = null;
-    setPreloaded(newpreloaded);
-    console.log("changed");
-    setFinished(true);
-  }
+  // function changePreloaded(input) {
+  //   setFinished(false);
+  //   let newpreloaded = preloaded;
+  //   newpreloaded[input] = null;
+  //   setPreloaded(newpreloaded);
+  //   console.log("changed");
+  //   setFinished(true);
+  // }
   return finished ? (
     <div className="container lg:w-1/2 md:w-2/3 sm:w-3/4 w-3/4 m-auto mt-10 ">
       <form
         className="bg-white filter drop-shadow-md rounded p-4"
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={onSubmit}
         encType="multipart/form-data"
       >
         <h1 className="text-2xl font-bold mb-10 text-center">
@@ -485,7 +495,6 @@ const UpdateSellerData = ({ toggleLoading }) => {
               : `focus:ring-2 focus:ring-blue-700 focus:border-none focus:outline-none mb-10`
           }`}
           placeholder="Garden name..."
-          {...register("gardenName", { required: true, minLength: 3 })}
         />
         <p className="error font-medium text-red-500">
           {errors.bio ? "Bio must be longer." : ""}
@@ -496,7 +505,6 @@ const UpdateSellerData = ({ toggleLoading }) => {
               ? `ring-2 ring-red-500 border-none outline-none bg-red-300 animate-shake mb-6`
               : `focus:ring-2 focus:ring-blue-700 focus:border-none focus:outline-none mb-10`
           }`}
-          {...register("bio", { required: true, minLength: 10 })}
           id="bio"
           placeholder="Write a bio..."
         ></textarea>
